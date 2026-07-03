@@ -35,7 +35,6 @@ The SQLite database (`scheduler.db`) is created automatically on first run.
 ├── index.php
 ├── scheduler.db        # Created automatically
 ├── app_activity.log    # Created automatically
-└── README.md
 ```
 
 ## License
