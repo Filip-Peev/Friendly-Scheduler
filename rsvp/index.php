@@ -215,7 +215,10 @@ $default_time = date('H:i');
                         </h5>
 
                         <?php if (!$is_past_meeting): ?>
-                            <form method="POST" onsubmit="return confirm('Are you sure you want to delete this meeting option?');">
+                            <?php
+                            $hasResponses = !empty($responsesByMeeting[$m['id']]);
+                            ?>
+                            <form method="POST" <?= $hasResponses ? 'onsubmit="return confirm(\'Are you sure you want to delete this meeting option?\');"' : '' ?>>
                                 <input type="hidden" name="action" value="delete_meeting">
                                 <input type="hidden" name="meeting_id" value="<?= $m['id'] ?>">
                                 <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-1" style="line-height: 1; font-size: 1.25rem;">
