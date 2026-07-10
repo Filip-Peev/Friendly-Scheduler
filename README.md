@@ -1,42 +1,39 @@
-# 📅 Friendly Scheduler
+# Meeting Scheduler
 
-A simple PHP + SQLite web application for scheduling meetings with friends and collecting RSVPs.
+A lightweight, single-file meeting scheduler with RSVP functionality. Propose meeting dates, let friends vote yes or no, and track responses — all backed by SQLite.
 
 ## Features
 
-* Create meeting proposals
-* Add meeting date, time, and details
-* RSVP with **Yes** or **No**
-* Update an existing RSVP
-* Lock past meetings from editing
-* Delete upcoming meetings
-* Monthly meeting view
-* Activity logging
+- **Create meetings** with title, date, time, and optional details
+- **RSVP system** — friends can vote Yes or No, and update their response
+- **Past meeting protection** — responses and deletes are blocked for past dates
+- **Quick templates** — one-click scheduling for common hangouts (coffee, dinner, games, etc.)
+- **Month-based navigation** — browse meetings by month
+- **Activity logs** — full audit trail of all actions, color-coded by type
+- **Responsive** — works on mobile and desktop via Bootstrap 5
 
-## Built With
+## Tech Stack
 
-* PHP
-* SQLite
-* Bootstrap 5
+- PHP 8+
+- SQLite 3 (via PDO)
+- Bootstrap 5.3 (CDN)
 
-## Getting Started
+## Setup
 
-1. Clone the repository.
-2. Place the project in your PHP web server directory.
-3. Start your local server.
-4. Open the project in your browser.
+1. Place files in your web server's document root (e.g., `htdocs/rsvp/`)
+2. Make sure the web server has write permissions for the directory (SQLite creates `scheduler.db` automatically)
+3. Navigate to `http://localhost/rsvp/` in your browser
 
-The SQLite database (`scheduler.db`) is created automatically on first run.
+No composer, no database setup, no config files — just drop and run.
 
-## Project Structure
+## File Overview
 
-```text
-.
-├── index.php
-├── scheduler.db        # Created automatically
-├── app_activity.log    # Created automatically
-```
+| File | Purpose |
+|------|---------|
+| `index.php` | Main app — create meetings, RSVP, view by month |
+| `templates.php` | Quick-add buttons for common meeting types |
+| `logs.php` | Activity log viewer (last 500 entries) |
 
 ## License
 
-This project is available under the MIT License.
+MIT
