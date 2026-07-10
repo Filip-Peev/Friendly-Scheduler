@@ -18,14 +18,19 @@ $db->exec("CREATE TABLE IF NOT EXISTS responses (
     friend_name TEXT, 
     status TEXT
 )");
+$db->exec("CREATE TABLE IF NOT EXISTS logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    message TEXT NOT NULL
+)");
 
-// Helper function to append to a log file
+// Helper function to append to a log in sqlite
 function writeToLog($message)
 {
-    $logFile = 'app_activity.log';
-    $timestamp = date('Y-m-d H:i:s');
-    $logMessage = "[$timestamp] $message" . PHP_EOL;
-    file_put_contents($logFile, $logMessage, FILE_APPEND);
+    global $db;
+
+    $stmt = $db->prepare("INSERT INTO logs (message) VALUES (?)");
+    $stmt->execute([$message]);
 }
 
 // 3. Handle Form Submissions
@@ -114,6 +119,17 @@ $stmt = $db->prepare("SELECT * FROM meetings WHERE substr(proposed_date, 1, 7) =
 $stmt->execute([$selected_month]);
 $meetings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+$meetingIds = array_column($meetings, 'id');
+$responsesByMeeting = [];
+if (!empty($meetingIds)) {
+    $placeholders = implode(',', array_fill(0, count($meetingIds), '?'));
+    $rStmt = $db->prepare("SELECT * FROM responses WHERE meeting_id IN ($placeholders)");
+    $rStmt->execute($meetingIds);
+    foreach ($rStmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+        $responsesByMeeting[$r['meeting_id']][] = $r;
+    }
+}
+
 $default_date = date('Y-m-d');
 $default_time = date('H:i');
 ?>
@@ -137,7 +153,10 @@ $default_time = date('H:i');
 
         <div class="card mb-4 shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">Propose a New Meeting</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title m-0">Propose a New Meeting</h5>
+                    <a href="templates.php" class="btn btn-sm btn-outline-primary">⚡ Quick Templates</a>
+                </div>
                 <form method="POST">
                     <input type="hidden" name="action" value="new_meeting">
                     <div class="mb-2">
@@ -218,9 +237,7 @@ $default_time = date('H:i');
                         <strong>Responses:</strong>
                         <div class="d-flex flex-wrap gap-1 mt-1">
                             <?php
-                            $stmt = $db->prepare("SELECT * FROM responses WHERE meeting_id = ?");
-                            $stmt->execute([$m['id']]);
-                            $responses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            $responses = $responsesByMeeting[$m['id']] ?? [];
                             foreach ($responses as $r) {
                                 $badgeColor = ($r['status'] === 'yes') ? 'bg-success' : 'bg-danger';
                                 echo "<span class='badge {$badgeColor} p-2'>" . htmlspecialchars($r['friend_name']) . "</span>";
